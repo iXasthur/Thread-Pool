@@ -8,12 +8,12 @@ namespace Thread_Pool.TaskQueue
     {
         public delegate void TaskDelegate();
 
-        public const int MainLoopDelay = 500;
+        private const int MainLoopDelay = 500;
 
         private bool _isRunning = true;
         
         private readonly List<TaskDelegate> _tasks = new List<TaskDelegate>();
-        public readonly TaskQueueThread[] TaskQueueThreads;
+        private readonly TaskQueueThread[] TaskQueueThreads;
 
         public TaskQueue(int threadCount)
         {
