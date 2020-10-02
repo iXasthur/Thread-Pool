@@ -13,19 +13,19 @@ namespace Thread_Pool.TaskQueue
         private bool _isRunning = true;
         
         private readonly List<TaskDelegate> _tasks = new List<TaskDelegate>();
-        private readonly TaskQueueThread[] TaskQueueThreads;
+        private readonly TaskQueueThread[] _taskQueueThreads;
 
         public TaskQueue(int threadCount)
         {
-            TaskQueueThreads = new TaskQueueThread[threadCount];
+            _taskQueueThreads = new TaskQueueThread[threadCount];
             for (int i = 0; i < threadCount; i++)
             {
                 TaskQueueThread newQueueThread = new TaskQueueThread();
-                TaskQueueThreads[i] = newQueueThread;
+                _taskQueueThreads[i] = newQueueThread;
                 Thread newSystemThread = new Thread(newQueueThread.ThreadLoop);
                 newSystemThread.Start();
             }
-            Console.WriteLine("Created Thread Pool of " + TaskQueueThreads.Length + " threads");
+            Console.WriteLine("Created Thread Pool of " + _taskQueueThreads.Length + " threads");
 
             Thread taskQueueThread = new Thread(MainLoop);
             Console.WriteLine("Starting MainLoop");
@@ -41,11 +41,11 @@ namespace Thread_Pool.TaskQueue
                     // Add task to thread with minimum active tasks
                     TaskDelegate task = _tasks[0];
 
-                    int minActiveTasksCount = TaskQueueThreads[0].ActiveTasks.Count;
+                    int minActiveTasksCount = _taskQueueThreads[0].ActiveTasks.Count;
                     int indexOfThreadWithMinActiveTasks = 0;
-                    for (int i = 1; i < TaskQueueThreads.Length; i++)
+                    for (int i = 1; i < _taskQueueThreads.Length; i++)
                     {
-                        int count = TaskQueueThreads[i].ActiveTasks.Count;
+                        int count = _taskQueueThreads[i].ActiveTasks.Count;
                         if (count < minActiveTasksCount)
                         {
                             minActiveTasksCount = count;
@@ -53,7 +53,7 @@ namespace Thread_Pool.TaskQueue
                         }
                     }
                     
-                    TaskQueueThreads[indexOfThreadWithMinActiveTasks].AddTask(task);
+                    _taskQueueThreads[indexOfThreadWithMinActiveTasks].AddTask(task);
                     Console.WriteLine("Added Task to Thread " + indexOfThreadWithMinActiveTasks);
                     _tasks.RemoveAt(0);
                 }
@@ -72,7 +72,7 @@ namespace Thread_Pool.TaskQueue
         public void ForceStop()
         {
             _isRunning = false;
-            foreach (TaskQueueThread thread in TaskQueueThreads)
+            foreach (TaskQueueThread thread in _taskQueueThreads)
             {
                 thread.ForceStop();
             }
