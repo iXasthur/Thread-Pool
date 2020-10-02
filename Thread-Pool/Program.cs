@@ -1,12 +1,22 @@
 ﻿using System;
+using System.Threading;
 
 namespace Thread_Pool
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var queue = new TaskQueue.TaskQueue(20);
+            queue.EnqueueTask(PrintHello);
+            queue.EnqueueTask(PrintHello);
+            queue.EnqueueTask(PrintHello);
+            queue.EnqueueTask(PrintHello);
+        }
+
+        private static void PrintHello()
+        {
+            Console.WriteLine("Hello form Main!");
         }
     }
 }
