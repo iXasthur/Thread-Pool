@@ -6,8 +6,8 @@ namespace Thread_Pool.TaskQueue
     public class TaskQueueThread
     {
         private ManualResetEvent _mrse = new ManualResetEvent(false);
-        
         private bool _isRunning = true;
+        
         public readonly List<TaskQueue.TaskDelegate> ActiveTasks = new List<TaskQueue.TaskDelegate>();
 
         public void ThreadLoop()
@@ -16,9 +16,9 @@ namespace Thread_Pool.TaskQueue
             {
                 if (ActiveTasks.Count > 0)
                 {
-                    TaskQueue.TaskDelegate task = ActiveTasks[0];
+                    var task = ActiveTasks[0];
                     task.Invoke();
-                    
+
                     // Removed from active when done
                     ActiveTasks.RemoveAt(0);
                 }
@@ -26,7 +26,7 @@ namespace Thread_Pool.TaskQueue
                 {
                     _mrse.Reset(); // Pause thread
                 }
-                
+
                 _mrse.WaitOne();
             }
         }

@@ -15,7 +15,7 @@ namespace Thread_Pool.MultithreadingCopiers
             Src = src;
             Dest = dest;
         }
-        
+
         public void Perform()
         {
             try

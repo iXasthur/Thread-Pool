@@ -8,11 +8,11 @@ namespace Thread_Pool
     {
         private static void Main(string[] args)
         {
-            TaskQueue.TaskQueue taskQueue = new TaskQueue.TaskQueue(20);
+            var taskQueue = new TaskQueue.TaskQueue(20);
 
             try
             {
-                CatalogCopier copier = new CatalogCopier("srcCopy", "destCopy", taskQueue);
+                var copier = new CatalogCopier("srcCopy", "destCopy", taskQueue);
                 copier.Perform();
                 Console.WriteLine("Successfully completed copy operations.");
             }
