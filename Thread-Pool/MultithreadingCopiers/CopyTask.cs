@@ -28,7 +28,7 @@ namespace Thread_Pool.MultithreadingCopiers
             }
             finally
             {
-                Console.WriteLine("Successfully copied from " + Src + " to " + Dest);
+                Console.WriteLine("Copied from " + Src + " to " + Dest);
                 Finished = true;
             }
         }

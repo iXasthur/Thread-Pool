@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Thread_Pool.MultithreadingCopiers
 {
     public class CatalogCopier
     {
 
-        private CopyTask[] _copyTasks;
+        private List<CopyTask> _copyTasks = new List<CopyTask>();
         private readonly TaskQueue.TaskQueue _taskQueue;
         
         public CatalogCopier(string src, string dest, TaskQueue.TaskQueue taskQueue)
@@ -18,12 +20,12 @@ namespace Thread_Pool.MultithreadingCopiers
 
             if (!srcAttr.HasFlag(FileAttributes.Directory))
             {
-                throw new Exception("'" + Path.GetFullPath(src) + "' is not directory");
+                throw new Exception("'" + Path.GetFullPath(src) + "' is not directory.");
             }
             
             if (!destAttr.HasFlag(FileAttributes.Directory))
             {
-                throw new Exception("'" + Path.GetFullPath(src) + "' is not directory");
+                throw new Exception("'" + Path.GetFullPath(src) + "' is not directory.");
             }
             
             CreateCopyTasks(src, dest);
@@ -32,15 +34,27 @@ namespace Thread_Pool.MultithreadingCopiers
         private void CreateCopyTasks(string src, string dest)
         {
             string[] srcDirFiles = Directory.GetFiles(src);
-            _copyTasks = new CopyTask[srcDirFiles.Length];
-            
-            for (var i = 0; i < srcDirFiles.Length; i++)
+            foreach (string filePath in srcDirFiles)
             {
-                string fileAbsolutePath = Path.GetFullPath(srcDirFiles[i]);
-                string destinationPath = Path.GetFullPath(dest) + @"\" + Path.GetFileName(srcDirFiles[i]);
+                string fileAbsolutePath = Path.GetFullPath(filePath);
+                string destinationPath = Path.GetFullPath(dest) + @"\" + Path.GetFileName(filePath);
                 
                 CopyTask task = new CopyTask(fileAbsolutePath, destinationPath);
-                _copyTasks[i] = task;
+                _copyTasks.Add(task);
+            }
+
+            string[] srcDirDirs = Directory.GetDirectories(src);
+            foreach (string dirPath in srcDirDirs)
+            {
+                string dirAbsolutePath = Path.GetFullPath(dirPath);
+                string destinationPath = Path.GetFullPath(dest) + @"\" + Path.GetFileName(dirPath);
+
+                if (!Directory.Exists(destinationPath))
+                {
+                    Directory.CreateDirectory(destinationPath);
+                }
+                
+                CreateCopyTasks(dirAbsolutePath, destinationPath);
             }
         }
 
@@ -50,7 +64,25 @@ namespace Thread_Pool.MultithreadingCopiers
             {
                 _taskQueue.EnqueueTask(task.Perform);
             }
+
+            // Wait for every task to complete
+            SpinWait sw = new SpinWait();
+            while (!AllTasksCompleted())
+            {
+                sw.SpinOnce();
+            }
         }
 
+        public bool AllTasksCompleted()
+        {
+            foreach (CopyTask task in _copyTasks)
+            {
+                if (task.Finished == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
