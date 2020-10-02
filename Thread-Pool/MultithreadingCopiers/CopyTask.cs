@@ -5,16 +5,16 @@ namespace Thread_Pool.MultithreadingCopiers
 {
     public class CopyTask
     {
-        public readonly string Src;
         public readonly string Dest;
-
-        public bool Finished { get; private set; } = false;
+        public readonly string Src;
 
         public CopyTask(string src, string dest)
         {
             Src = src;
             Dest = dest;
         }
+
+        public bool Finished { get; private set; }
 
         public void Perform()
         {

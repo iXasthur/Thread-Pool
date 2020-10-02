@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Thread_Pool.MultithreadingCopiers;
 
 namespace Thread_Pool

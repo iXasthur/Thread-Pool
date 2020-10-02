@@ -5,10 +5,10 @@ namespace Thread_Pool.TaskQueue
 {
     public class TaskQueueThread
     {
-        private ManualResetEvent _mrse = new ManualResetEvent(false);
-        private bool _isRunning = true;
-        
+        private readonly ManualResetEvent _mrse = new ManualResetEvent(false);
         public readonly List<TaskQueue.TaskDelegate> ActiveTasks = new List<TaskQueue.TaskDelegate>();
+        
+        private bool _isRunning = true;
 
         public void ThreadLoop()
         {

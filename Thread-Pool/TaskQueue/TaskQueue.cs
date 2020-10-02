@@ -6,13 +6,14 @@ namespace Thread_Pool.TaskQueue
 {
     public class TaskQueue
     {
+        public delegate void TaskDelegate();
+
+        private readonly ManualResetEvent _mrse = new ManualResetEvent(false);
+
         private readonly TaskQueueThread[] _taskQueueThreads;
         private readonly List<TaskDelegate> _tasks = new List<TaskDelegate>();
 
-        private ManualResetEvent _mrse = new ManualResetEvent(false);
         private bool _isRunning = true;
-
-        public delegate void TaskDelegate();
 
         public TaskQueue(int threadCount)
         {
