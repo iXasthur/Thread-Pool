@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Thread_Pool.MultithreadingCopiers
@@ -9,6 +10,10 @@ namespace Thread_Pool.MultithreadingCopiers
     {
         private readonly List<CopyTask> _copyTasks = new List<CopyTask>();
         private readonly TaskQueue.TaskQueue _taskQueue;
+
+        public int TasksCount => _copyTasks.Count;
+        public int SuccessfulTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Successful);
+        public int ErrorTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Error);
 
         public CatalogCopier(string src, string dest, TaskQueue.TaskQueue taskQueue)
         {
@@ -62,7 +67,7 @@ namespace Thread_Pool.MultithreadingCopiers
         private bool AllTasksCompleted()
         {
             foreach (var task in _copyTasks)
-                if (task.Finished == false)
+                if (task.Status == CopyTask.CopyStatus.Waiting)
                     return false;
             return true;
         }

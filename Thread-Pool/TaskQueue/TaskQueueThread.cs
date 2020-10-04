@@ -5,9 +5,11 @@ namespace Thread_Pool.TaskQueue
 {
     public class TaskQueueThread
     {
-        public readonly List<TaskQueue.TaskDelegate> ActiveTasks = new List<TaskQueue.TaskDelegate>();
+        private readonly List<TaskQueue.TaskDelegate> _activeTasks = new List<TaskQueue.TaskDelegate>();
         
         private bool _isRunning = true;
+        
+        public int ActiveTasksCount => _activeTasks.Count;
 
         public void ThreadLoop()
         {
@@ -15,13 +17,13 @@ namespace Thread_Pool.TaskQueue
             
             while (_isRunning)
             {
-                if (ActiveTasks.Count > 0)
+                if (_activeTasks.Count > 0)
                 {
-                    var task = ActiveTasks[0];
+                    var task = _activeTasks[0];
                     task.Invoke();
 
                     // Removed from active when done
-                    ActiveTasks.RemoveAt(0);
+                    _activeTasks.RemoveAt(0);
                 }
                 else
                 {
@@ -32,7 +34,7 @@ namespace Thread_Pool.TaskQueue
 
         public void AddTask(TaskQueue.TaskDelegate task)
         {
-            ActiveTasks.Add(task);
+            _activeTasks.Add(task);
         }
 
         public void ForceStop()

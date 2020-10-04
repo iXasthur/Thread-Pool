@@ -5,6 +5,13 @@ namespace Thread_Pool.MultithreadingCopiers
 {
     public class CopyTask
     {
+        public enum CopyStatus
+        {
+            Waiting,
+            Successful,
+            Error
+        }
+        
         public readonly string Dest;
         public readonly string Src;
 
@@ -12,24 +19,24 @@ namespace Thread_Pool.MultithreadingCopiers
         {
             Src = src;
             Dest = dest;
+
+            Status = CopyStatus.Waiting;
         }
 
-        public bool Finished { get; private set; }
+        public CopyStatus Status { get; private set; }
 
         public void Perform()
         {
             try
             {
                 File.Copy(Src, Dest, true);
+                Console.WriteLine("Copied file from " + Src + " to " + Dest);
+                Status = CopyStatus.Successful;
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
-            }
-            finally
-            {
-                Console.WriteLine("Copied file from " + Src + " to " + Dest);
-                Finished = true;
+                Status = CopyStatus.Error;
             }
         }
     }

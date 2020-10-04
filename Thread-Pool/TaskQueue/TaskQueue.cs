@@ -41,11 +41,11 @@ namespace Thread_Pool.TaskQueue
                     // Add task to thread with minimum active tasks
                     var task = _tasks[0];
 
-                    var minActiveTasksCount = _taskQueueThreads[0].ActiveTasks.Count;
+                    var minActiveTasksCount = _taskQueueThreads[0].ActiveTasksCount;
                     var indexOfThreadWithMinActiveTasks = 0;
                     for (var i = 1; i < _taskQueueThreads.Length; i++)
                     {
-                        var count = _taskQueueThreads[i].ActiveTasks.Count;
+                        var count = _taskQueueThreads[i].ActiveTasksCount;
                         if (count < minActiveTasksCount)
                         {
                             minActiveTasksCount = count;

@@ -32,7 +32,10 @@ namespace Thread_Pool
             {
                 var copier = new CatalogCopier(args[0], args[1], taskQueue);
                 copier.Perform();
-                Console.WriteLine("Successfully completed copy operations.");
+                Console.WriteLine();
+                Console.WriteLine("Completed copy operations (" + copier.TasksCount + ").");
+                Console.WriteLine("Successful: " + copier.SuccessfulTasksCount);
+                Console.WriteLine("Error: " + copier.ErrorTasksCount);
             }
             catch (Exception exception)
             {
@@ -40,8 +43,7 @@ namespace Thread_Pool
             }
             finally
             {
-                Console.WriteLine("Destroying ThreadQueue.");
-                // taskQueue.ForceStop();
+                taskQueue.ForceStop();
             }
         }
     }
