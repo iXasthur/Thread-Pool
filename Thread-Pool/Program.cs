@@ -32,7 +32,7 @@ namespace Thread_Pool
                 var copier = new CatalogCopier(args[0], args[1], taskQueue);
                 copier.Perform();
                 Console.WriteLine();
-                Console.WriteLine("Completed copy operations (" + copier.TasksCount + ").");
+                Console.WriteLine("Completed copy operations (" + copier.CompletedTasksCount + ").");
                 Console.WriteLine("Successful: " + copier.SuccessfulTasksCount);
                 Console.WriteLine("Error: " + copier.ErrorTasksCount);
             }
