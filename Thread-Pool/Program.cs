@@ -5,13 +5,32 @@ namespace Thread_Pool
 {
     internal class Program
     {
+
+        private const string InvalidArgsStr = "Invalid arguments.\nArgs: sourceCatalog destinationCatalog threadCount";
+        
         private static void Main(string[] args)
         {
-            var taskQueue = new TaskQueue.TaskQueue(20);
+            if (!(args.Length == 3 && int.TryParse(args[2], out var threadCount)))
+            {
+                Console.WriteLine(InvalidArgsStr);
+                return;
+            }
 
+            TaskQueue.TaskQueue taskQueue;
+            
             try
             {
-                var copier = new CatalogCopier("srcCopy", "destCopy", taskQueue);
+                taskQueue = new TaskQueue.TaskQueue(threadCount);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return;
+            }
+            
+            try
+            {
+                var copier = new CatalogCopier(args[0], args[1], taskQueue);
                 copier.Perform();
                 Console.WriteLine("Successfully completed copy operations.");
             }
@@ -22,7 +41,7 @@ namespace Thread_Pool
             finally
             {
                 Console.WriteLine("Destroying ThreadQueue.");
-                taskQueue.ForceStop();
+                // taskQueue.ForceStop();
             }
         }
     }
