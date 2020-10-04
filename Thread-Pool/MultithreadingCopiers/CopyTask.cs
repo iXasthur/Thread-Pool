@@ -30,7 +30,7 @@ namespace Thread_Pool.MultithreadingCopiers
             try
             {
                 File.Copy(Src, Dest, true);
-                Console.WriteLine("Copied file from " + Src + " to " + Dest);
+                Console.WriteLine("- Copied file from " + Src + " to " + Dest);
                 Status = CopyStatus.Successful;
             }
             catch (Exception exception)
