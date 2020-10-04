@@ -59,7 +59,7 @@ namespace Thread_Pool.MultithreadingCopiers
             while (!AllTasksCompleted()) sw.SpinOnce();
         }
 
-        public bool AllTasksCompleted()
+        private bool AllTasksCompleted()
         {
             foreach (var task in _copyTasks)
                 if (task.Finished == false)

@@ -8,8 +8,6 @@ namespace Thread_Pool.TaskQueue
     {
         public delegate void TaskDelegate();
 
-        private readonly ManualResetEvent _mrse = new ManualResetEvent(false);
-
         private readonly TaskQueueThread[] _taskQueueThreads;
         private readonly List<TaskDelegate> _tasks = new List<TaskDelegate>();
 
@@ -28,15 +26,14 @@ namespace Thread_Pool.TaskQueue
                 newSystemThread.Start();
             }
 
-            Console.WriteLine("Created Thread Pool of " + _taskQueueThreads.Length + " threads");
-
             var taskQueueThread = new Thread(MainLoop);
-            Console.WriteLine("Starting MainLoop");
             taskQueueThread.Start();
         }
 
         private void MainLoop()
         {
+            var sw = new SpinWait();
+            
             while (_isRunning)
             {
                 if (_tasks.Count > 0)
@@ -57,29 +54,24 @@ namespace Thread_Pool.TaskQueue
                     }
 
                     _taskQueueThreads[indexOfThreadWithMinActiveTasks].AddTask(task);
-                    // Console.WriteLine("Added Task to Thread " + indexOfThreadWithMinActiveTasks);
                     _tasks.RemoveAt(0);
                 }
                 else
                 {
-                    _mrse.Reset(); // Pause thread
+                    sw.SpinOnce();
                 }
-
-                _mrse.WaitOne();
             }
         }
 
         public void EnqueueTask(TaskDelegate task)
         {
             _tasks.Add(task);
-            _mrse.Set(); // Resume thread
         }
 
         public void ForceStop()
         {
             _isRunning = false;
             foreach (var thread in _taskQueueThreads) thread.ForceStop();
-            _mrse.Set(); // Resume thread
         }
     }
 }

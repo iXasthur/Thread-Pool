@@ -5,13 +5,14 @@ namespace Thread_Pool.TaskQueue
 {
     public class TaskQueueThread
     {
-        private readonly ManualResetEvent _mrse = new ManualResetEvent(false);
         public readonly List<TaskQueue.TaskDelegate> ActiveTasks = new List<TaskQueue.TaskDelegate>();
         
         private bool _isRunning = true;
 
         public void ThreadLoop()
         {
+            var sw = new SpinWait();
+            
             while (_isRunning)
             {
                 if (ActiveTasks.Count > 0)
@@ -24,23 +25,19 @@ namespace Thread_Pool.TaskQueue
                 }
                 else
                 {
-                    _mrse.Reset(); // Pause thread
+                    sw.SpinOnce();
                 }
-
-                _mrse.WaitOne();
             }
         }
 
         public void AddTask(TaskQueue.TaskDelegate task)
         {
             ActiveTasks.Add(task);
-            _mrse.Set(); // Resume thread
         }
 
         public void ForceStop()
         {
             _isRunning = false;
-            _mrse.Set(); // Resume thread
         }
     }
 }
