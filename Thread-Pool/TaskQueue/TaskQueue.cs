@@ -33,9 +33,8 @@ namespace Thread_Pool.TaskQueue
         private void MainLoop()
         {
             var sw = new SpinWait();
-            
+
             while (_isRunning)
-            {
                 if (_tasks.Count > 0)
                 {
                     // Add task to thread with minimum active tasks
@@ -60,7 +59,6 @@ namespace Thread_Pool.TaskQueue
                 {
                     sw.SpinOnce();
                 }
-            }
         }
 
         public void EnqueueTask(TaskDelegate task)

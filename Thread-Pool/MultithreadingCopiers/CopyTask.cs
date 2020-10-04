@@ -11,7 +11,7 @@ namespace Thread_Pool.MultithreadingCopiers
             Successful,
             Error
         }
-        
+
         public readonly string Dest;
         public readonly string Src;
 

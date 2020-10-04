@@ -11,10 +11,6 @@ namespace Thread_Pool.MultithreadingCopiers
         private readonly List<CopyTask> _copyTasks = new List<CopyTask>();
         private readonly TaskQueue.TaskQueue _taskQueue;
 
-        public int TasksCount => _copyTasks.Count;
-        public int SuccessfulTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Successful);
-        public int ErrorTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Error);
-
         public CatalogCopier(string src, string dest, TaskQueue.TaskQueue taskQueue)
         {
             _taskQueue = taskQueue;
@@ -30,6 +26,10 @@ namespace Thread_Pool.MultithreadingCopiers
 
             CreateCopyTasks(src, dest);
         }
+
+        public int TasksCount => _copyTasks.Count;
+        public int SuccessfulTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Successful);
+        public int ErrorTasksCount => _copyTasks.Count(task => task.Status == CopyTask.CopyStatus.Error);
 
         private void CreateCopyTasks(string src, string dest)
         {

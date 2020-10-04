@@ -6,17 +6,16 @@ namespace Thread_Pool.TaskQueue
     public class TaskQueueThread
     {
         private readonly List<TaskQueue.TaskDelegate> _activeTasks = new List<TaskQueue.TaskDelegate>();
-        
+
         private bool _isRunning = true;
-        
+
         public int ActiveTasksCount => _activeTasks.Count;
 
         public void ThreadLoop()
         {
             var sw = new SpinWait();
-            
+
             while (_isRunning)
-            {
                 if (_activeTasks.Count > 0)
                 {
                     var task = _activeTasks[0];
@@ -29,7 +28,6 @@ namespace Thread_Pool.TaskQueue
                 {
                     sw.SpinOnce();
                 }
-            }
         }
 
         public void AddTask(TaskQueue.TaskDelegate task)
