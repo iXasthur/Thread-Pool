@@ -35,7 +35,7 @@ namespace Thread_Pool.MultithreadingCopiers
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.Message);
+                Console.WriteLine("- " + exception.Message);
                 Status = CopyStatus.Error;
             }
         }
