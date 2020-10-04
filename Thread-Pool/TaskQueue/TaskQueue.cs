@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace Thread_Pool.TaskQueue
@@ -8,8 +8,10 @@ namespace Thread_Pool.TaskQueue
     {
         public delegate void TaskDelegate();
 
+        // Can be modified from multiple threads
+        private readonly ConcurrentQueue<TaskDelegate> _queuedTasks = new ConcurrentQueue<TaskDelegate>();
+
         private readonly TaskQueueThread[] _taskQueueThreads;
-        private readonly List<TaskDelegate> _tasks = new List<TaskDelegate>();
 
         private bool _isRunning = true;
 
@@ -35,16 +37,14 @@ namespace Thread_Pool.TaskQueue
             var sw = new SpinWait();
 
             while (_isRunning)
-                if (_tasks.Count > 0)
+                if (_queuedTasks.TryDequeue(out var task))
                 {
-                    // Add task to thread with minimum active tasks
-                    var task = _tasks[0];
-
-                    var minActiveTasksCount = _taskQueueThreads[0].ActiveTasksCount;
+                    // Add task to thread with minimum queued tasks
+                    var minActiveTasksCount = _taskQueueThreads[0].QueuedTasksCount;
                     var indexOfThreadWithMinActiveTasks = 0;
                     for (var i = 1; i < _taskQueueThreads.Length; i++)
                     {
-                        var count = _taskQueueThreads[i].ActiveTasksCount;
+                        var count = _taskQueueThreads[i].QueuedTasksCount;
                         if (count < minActiveTasksCount)
                         {
                             minActiveTasksCount = count;
@@ -53,7 +53,6 @@ namespace Thread_Pool.TaskQueue
                     }
 
                     _taskQueueThreads[indexOfThreadWithMinActiveTasks].AddTask(task);
-                    _tasks.RemoveAt(0);
                 }
                 else
                 {
@@ -63,7 +62,7 @@ namespace Thread_Pool.TaskQueue
 
         public void EnqueueTask(TaskDelegate task)
         {
-            _tasks.Add(task);
+            _queuedTasks.Enqueue(task);
         }
 
         public void ForceStop()
