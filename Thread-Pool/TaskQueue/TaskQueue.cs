@@ -40,19 +40,18 @@ namespace Thread_Pool.TaskQueue
                 if (_queuedTasks.TryDequeue(out var task))
                 {
                     // Add task to thread with minimum queued tasks
-                    var minActiveTasksCount = _taskQueueThreads[0].QueuedTasksCount;
-                    var indexOfThreadWithMinActiveTasks = 0;
+                    var minQueuedTasksCount = _taskQueueThreads[0].QueuedTasksCount;
+                    var indexOfThreadWithMinQueuedTasks = 0;
                     for (var i = 1; i < _taskQueueThreads.Length; i++)
                     {
                         var count = _taskQueueThreads[i].QueuedTasksCount;
-                        if (count < minActiveTasksCount)
+                        if (count < minQueuedTasksCount)
                         {
-                            minActiveTasksCount = count;
-                            indexOfThreadWithMinActiveTasks = i;
+                            minQueuedTasksCount = count;
+                            indexOfThreadWithMinQueuedTasks = i;
                         }
                     }
-
-                    _taskQueueThreads[indexOfThreadWithMinActiveTasks].AddTask(task);
+                    _taskQueueThreads[indexOfThreadWithMinQueuedTasks].AddTask(task);
                 }
                 else
                 {
