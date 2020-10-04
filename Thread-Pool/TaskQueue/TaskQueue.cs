@@ -11,7 +11,7 @@ namespace Thread_Pool.TaskQueue
         // Can be modified from multiple threads
         private readonly ConcurrentQueue<TaskDelegate> _queuedTasks = new ConcurrentQueue<TaskDelegate>();
 
-        private readonly TaskQueueThread[] _taskQueueThreads;
+        private readonly Thread[] _threads;
 
         private bool _isRunning = true;
 
@@ -19,44 +19,24 @@ namespace Thread_Pool.TaskQueue
         {
             if (threadCount <= 0) throw new ArgumentException("Thread count must be > 0", nameof(threadCount));
 
-            _taskQueueThreads = new TaskQueueThread[threadCount];
+            _threads = new Thread[threadCount];
             for (var i = 0; i < threadCount; i++)
             {
-                var newQueueThread = new TaskQueueThread();
-                _taskQueueThreads[i] = newQueueThread;
-                var newSystemThread = new Thread(newQueueThread.ThreadLoop);
-                newSystemThread.Start();
+                var thread = new Thread(ThreadLoop);
+                _threads[i] = thread;
+                thread.Start();
             }
-
-            var taskQueueThread = new Thread(MainLoop);
-            taskQueueThread.Start();
         }
 
-        private void MainLoop()
+        private void ThreadLoop()
         {
             var sw = new SpinWait();
 
             while (_isRunning)
                 if (_queuedTasks.TryDequeue(out var task))
-                {
-                    // Add task to thread with minimum queued tasks
-                    var minQueuedTasksCount = _taskQueueThreads[0].QueuedTasksCount;
-                    var indexOfThreadWithMinQueuedTasks = 0;
-                    for (var i = 1; i < _taskQueueThreads.Length; i++)
-                    {
-                        var count = _taskQueueThreads[i].QueuedTasksCount;
-                        if (count < minQueuedTasksCount)
-                        {
-                            minQueuedTasksCount = count;
-                            indexOfThreadWithMinQueuedTasks = i;
-                        }
-                    }
-                    _taskQueueThreads[indexOfThreadWithMinQueuedTasks].AddTask(task);
-                }
+                    task.Invoke();
                 else
-                {
                     sw.SpinOnce();
-                }
         }
 
         public void EnqueueTask(TaskDelegate task)
@@ -67,7 +47,6 @@ namespace Thread_Pool.TaskQueue
         public void ForceStop()
         {
             _isRunning = false;
-            foreach (var thread in _taskQueueThreads) thread.ForceStop();
         }
     }
 }
